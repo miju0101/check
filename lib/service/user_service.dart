@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -81,10 +84,30 @@ class UserSerive {
   }
 
   //프로필 사진 변경
-  void changeProfileImg() async {
+  void changeProfileImg(String uid) async {
     XFile? selectedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
 
-    if (selectedFile != null) {}
+    if (selectedFile != null) {
+      var file = File(selectedFile.path);
+
+      UploadTask task = FirebaseStorage.instance
+          .ref()
+          .child("users")
+          .child(uid)
+          .child("profile")
+          .putFile(file);
+
+      task.snapshotEvents.listen((event) async {
+        if (event.state == TaskState.success) {
+          var url = await event.ref.getDownloadURL();
+
+          FirebaseFirestore.instance
+              .collection("users")
+              .doc(uid)
+              .update({"profile_img": url});
+        }
+      });
+    }
   }
 }

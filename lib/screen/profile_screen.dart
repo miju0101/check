@@ -48,7 +48,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          UserSerive().changeProfileImg(myInfo!["uid"]);
+                        },
                         child: CircleAvatar(
                           radius: 30,
                           backgroundImage: NetworkImage(myInfo!["profile_img"]),
